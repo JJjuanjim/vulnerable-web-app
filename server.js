@@ -24,15 +24,73 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ============================================================================
-// VULNERABILIDAD 1: Credenciales y Claves Secretas en Código Duro (Hardcoded Credentials)
+// VULNERABILIDAD 1: Credenciales Quemadas y Secretos en Código Duro (Hardcoded Credentials)
 // CWE-798 / OWASP A07:2021 - Identification and Authentication Failures
-// SonarQube Rule: javascript:S2068, javascript:S6290
+// SonarQube Rules: javascript:S2068 (Hard-coded credentials), javascript:S6290 (Hard-coded secrets)
 // ============================================================================
-const DB_USER = "admin";
-const DB_PASSWORD = "SuperSecretPassword2026!#";
+
+// 1.1 Contraseñas quemadas clásicas más expuestas en la industria (Diccionario por defecto)
+const DEFAULT_BURNED_PASSWORDS = [
+    { username: "admin", password: "password123", role: "SuperAdministrador" },
+    { username: "root", password: "toor", role: "RootGlobal" },
+    { username: "user_test", password: "123456", role: "Operador" },
+    { username: "db_admin", password: "admin", role: "DBA" },
+    { username: "cisco_switch", password: "cisco", role: "NetworkManager" },
+    { username: "servidor_backup", password: "Password2026!*", role: "BackupSys" }
+];
+
+// 1.2 Cadenas de conexión de bases de datos con usuarios y contraseñas expuestas
+const POSTGRES_PROD_URL = "postgres://postgres:admin1234@192.168.1.100:5432/clientes_produccion";
+const MONGO_CLUSTER_URI = "mongodb+srv://admin:SuperSecretPassword2026!#@cluster0.mongodb.net/finanzas";
+
+// 1.3 Claves de API y tokens de infraestructura en código duro
 const AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE";
-const AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";
+const AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI_MOCK_AWS_KEY_7MDENG_EXAMPLEKEY";
+const STRIPE_SECRET_KEY = "sk_test_51NzQ8LCI_MOCK_STRIPE_KEY_abcdefghijklmnop";
+const GITHUB_PERSONAL_TOKEN = "ghp_MOCK_GITHUB_TOKEN_1234567890abcdefghijklmno";
 const JWT_SECRET = "my_hardcoded_jwt_super_secret_key_12345";
+
+// Endpoint para validar si una credencial ingresada coincide con las quemadas
+app.post('/api/check-burned-credentials', (req, res) => {
+    const { username, password } = req.body;
+    
+    // Comparación contra la lista quemada en código
+    const found = DEFAULT_BURNED_PASSWORDS.find(u => u.username === username && u.password === password);
+    
+    if (found) {
+        return res.json({
+            status: "vulnerable",
+            message: "¡ALERTA! Inicio de sesion exitoso con credencial por defecto / quemada.",
+            account: found,
+            warning: "Esta cuenta utiliza contrasenas publicas conocidas por atacantes.",
+            databaseConnectionSample: POSTGRES_PROD_URL
+        });
+    }
+
+    return res.status(401).json({
+        status: "safe",
+        message: "Credencial no coincide con el diccionario de contrasenas quemadas.",
+        burnedDictionaryCount: DEFAULT_BURNED_PASSWORDS.length
+    });
+});
+
+// Endpoint que expone la lista de secretos quemados para auditoría
+app.get('/api/view-burned-secrets', (req, res) => {
+    res.json({
+        advertencia: "SECRETOS EXPUESTOS EN CODIGO FUENTE (CWE-798)",
+        dbConnections: {
+            postgres: POSTGRES_PROD_URL,
+            mongodb: MONGO_CLUSTER_URI
+        },
+        apiKeys: {
+            awsKey: AWS_ACCESS_KEY_ID,
+            awsSecret: AWS_SECRET_ACCESS_KEY,
+            stripe: STRIPE_SECRET_KEY,
+            githubToken: GITHUB_PERSONAL_TOKEN
+        },
+        cuentasPorDefecto: DEFAULT_BURNED_PASSWORDS
+    });
+});
 
 // ============================================================================
 // VULNERABILIDAD 2: Configuración Insegura de CORS (CORS Wildcard with Credentials)

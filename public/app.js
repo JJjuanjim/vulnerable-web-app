@@ -1,5 +1,34 @@
 // Pruebas interactivas de las vulnerabilidades
 
+async function testBurned() {
+    const user = document.getElementById('burned-user').value;
+    const pass = document.getElementById('burned-pass').value;
+    const resElem = document.getElementById('burned-result');
+
+    try {
+        const response = await fetch('/api/check-burned-credentials', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: user, password: pass })
+        });
+        const data = await response.json();
+        resElem.innerText = JSON.stringify(data, null, 2);
+    } catch (e) {
+        resElem.innerText = "Error: " + e.message;
+    }
+}
+
+async function viewBurnedSecrets() {
+    const resElem = document.getElementById('burned-result');
+    try {
+        const response = await fetch('/api/view-burned-secrets');
+        const data = await response.json();
+        resElem.innerText = JSON.stringify(data, null, 2);
+    } catch (e) {
+        resElem.innerText = "Error: " + e.message;
+    }
+}
+
 async function testSQLi() {
     const user = document.getElementById('sqli-user').value;
     const pass = document.getElementById('sqli-pass').value;

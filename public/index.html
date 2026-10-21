@@ -28,6 +28,22 @@
         </section>
 
         <div class="cards-grid">
+            <!-- Card 0: Contraseñas Quemadas y Secretos Expuestos -->
+            <div class="card">
+                <div class="card-header danger">
+                    <h3><i class="fa-solid fa-key"></i> 0. Contraseñas Quemadas & Secretos</h3>
+                    <span class="cwe-tag">CWE-798 / OWASP A07</span>
+                </div>
+                <p>Uso de contraseñas por defecto (<code>password123</code>, <code>toor</code>, <code>admin</code>) y cadenas de conexión a BD hardcodeadas.</p>
+                <div class="form-group">
+                    <input type="text" id="burned-user" value="admin" placeholder="Usuario quemado (admin, root, cisco)">
+                    <input type="password" id="burned-pass" value="password123" placeholder="Contraseña quemada (password123, toor)">
+                    <button onclick="testBurned()"><i class="fa-solid fa-lock-open"></i> Probar Credencial Quemada</button>
+                    <button onclick="viewBurnedSecrets()" style="background: #8b5cf6;"><i class="fa-solid fa-eye"></i> Ver Secretos y BD Expuestas</button>
+                </div>
+                <pre id="burned-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+
             <!-- Card 1: SQL Injection -->
             <div class="card">
                 <div class="card-header danger">

@@ -1,0 +1,5 @@
+node_modules/
+.scannerwork/
+.idea/
+.vscode/
+npm-debug.log

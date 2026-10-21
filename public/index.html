@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio SAST: App Web Vulnerable | SonarQube & SonarCloud</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+                <h1>Laboratorio SAST & Seguridad Web</h1>
+                <p>Auditoría de Código Fuente con SonarQube / SonarCloud</p>
+            </div>
+        </div>
+        <div class="badge">
+            <i class="fa-solid fa-bug"></i> 11 Vulnerabilidades + 5 Bugs
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="banner">
+            <h2><i class="fa-solid fa-triangle-exclamation"></i> Entorno de Demostración Controlado</h2>
+            <p>Esta aplicación contiene fallas intencionales basadas en <strong>OWASP Top 10</strong> y debilidades <strong>CWE</strong> listas para ser evaluadas en escaneo estático de código.</p>
+        </section>
+
+        <div class="cards-grid">
+            <!-- Card 1: SQL Injection -->
+            <div class="card">
+                <div class="card-header danger">
+                    <h3><i class="fa-solid fa-database"></i> 1. SQL Injection (SQLi)</h3>
+                    <span class="cwe-tag">CWE-89 / OWASP A03</span>
+                </div>
+                <p>Concatenación directa de parámetros en consulta SQL sin sentencias preparadas.</p>
+                <div class="form-group">
+                    <input type="text" id="sqli-user" value="admin' OR '1'='1" placeholder="Usuario">
+                    <input type="password" id="sqli-pass" value="cualquiera" placeholder="Contraseña">
+                    <button onclick="testSQLi()"><i class="fa-solid fa-bolt"></i> Ejecutar Inyección</button>
+                </div>
+                <pre id="sqli-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+
+            <!-- Card 2: Command Injection -->
+            <div class="card">
+                <div class="card-header danger">
+                    <h3><i class="fa-solid fa-terminal"></i> 2. Command Injection (RCE)</h3>
+                    <span class="cwe-tag">CWE-78 / OWASP A03</span>
+                </div>
+                <p>Ejecución arbitraria de comandos en el sistema operativo mediante <code>child_process.exec</code>.</p>
+                <div class="form-group">
+                    <input type="text" id="cmd-host" value="127.0.0.1; whoami" placeholder="Host IP o comando concatenado">
+                    <button onclick="testCmd()"><i class="fa-solid fa-bolt"></i> Enviar Comando</button>
+                </div>
+                <pre id="cmd-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+
+            <!-- Card 3: Reflected XSS -->
+            <div class="card">
+                <div class="card-header warning">
+                    <h3><i class="fa-solid fa-code"></i> 3. Cross-Site Scripting (XSS)</h3>
+                    <span class="cwe-tag">CWE-79 / OWASP A03</span>
+                </div>
+                <p>Reflejo de datos de usuario en la respuesta HTML sin sanitización ni escapado.</p>
+                <div class="form-group">
+                    <input type="text" id="xss-input" value="<script>alert('XSS_Ejecutado')</script>" placeholder="Payload XSS">
+                    <button onclick="testXSS()"><i class="fa-solid fa-bolt"></i> Probar Payload</button>
+                </div>
+                <pre id="xss-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+
+            <!-- Card 4: Path Traversal -->
+            <div class="card">
+                <div class="card-header danger">
+                    <h3><i class="fa-solid fa-folder-open"></i> 4. Path Traversal</h3>
+                    <span class="cwe-tag">CWE-22 / OWASP A01</span>
+                </div>
+                <p>Lectura arbitraria de archivos del servidor utilizando secuencias relativas (<code>../</code>).</p>
+                <div class="form-group">
+                    <input type="text" id="path-file" value="package.json" placeholder="Ruta de archivo">
+                    <button onclick="testPath()"><i class="fa-solid fa-bolt"></i> Leer Archivo</button>
+                </div>
+                <pre id="path-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+
+            <!-- Card 5: Weak Cryptography -->
+            <div class="card">
+                <div class="card-header warning">
+                    <h3><i class="fa-solid fa-key"></i> 5. Criptografía Débil (MD5/SHA1)</h3>
+                    <span class="cwe-tag">CWE-327 / OWASP A02</span>
+                </div>
+                <p>Uso de algoritmos de hash obsoletos y vulnerables a colisiones para contraseñas.</p>
+                <div class="form-group">
+                    <input type="text" id="crypto-pass" value="AdminPass2026!" placeholder="Contraseña a hashear">
+                    <button onclick="testCrypto()"><i class="fa-solid fa-bolt"></i> Hashear con MD5/SHA1</button>
+                </div>
+                <pre id="crypto-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+
+            <!-- Card 6: SSRF -->
+            <div class="card">
+                <div class="card-header danger">
+                    <h3><i class="fa-solid fa-network-wired"></i> 6. Server-Side Request Forgery</h3>
+                    <span class="cwe-tag">CWE-918 / OWASP A10</span>
+                </div>
+                <p>Peticiones arbitrarias enviadas desde el backend hacia servicios internos o externos.</p>
+                <div class="form-group">
+                    <input type="text" id="ssrf-url" value="http://127.0.0.1:3000/api/search?q=SSRF_Test" placeholder="URL remota">
+                    <button onclick="testSSRF()"><i class="fa-solid fa-bolt"></i> Forjar Petición</button>
+                </div>
+                <pre id="ssrf-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+
+            <!-- Card 7: Open Redirect -->
+            <div class="card">
+                <div class="card-header info">
+                    <h3><i class="fa-solid fa-share-from-square"></i> 7. Open Redirect</h3>
+                    <span class="cwe-tag">CWE-601 / OWASP A01</span>
+                </div>
+                <p>Redirección a dominios externos no verificados facilitando ataques de Phishing.</p>
+                <div class="form-group">
+                    <input type="text" id="redirect-url" value="https://example.com" placeholder="URL destino">
+                    <button onclick="testRedirect()"><i class="fa-solid fa-bolt"></i> Probar Redirección</button>
+                </div>
+                <pre id="redirect-result" class="output">Presiona para abrir enlace de redirección...</pre>
+            </div>
+
+            <!-- Card 8: Bugs & Code Smells -->
+            <div class="card">
+                <div class="card-header bug">
+                    <h3><i class="fa-solid fa-bug"></i> 8. Bugs y Code Smells</h3>
+                    <span class="cwe-tag">SonarJS:S1994, S1763, S1862</span>
+                </div>
+                <p>Detección de código muerto, asignación accidental en condiciones y ramas idénticas.</p>
+                <div class="form-group">
+                    <button onclick="testBugs()"><i class="fa-solid fa-play"></i> Ejecutar Funciones con Bugs</button>
+                </div>
+                <pre id="bugs-result" class="output">Resultado aparecerá aquí...</pre>
+            </div>
+        </div>
+
+        <section class="summary-section">
+            <h3><i class="fa-solid fa-list-check"></i> Matriz Completa de Detecciones para SonarQube / SonarCloud</h3>
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Vulnerabilidad / Bug</th>
+                        <th>CWE / Regla Sonar</th>
+                        <th>Archivo y Línea</th>
+                        <th>Severidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Credenciales y API Keys en Código Duro</td><td>CWE-798 (S2068, S6290)</td><td>server.js: L30-L34</td><td><span class="sev-blocker">Blocker</span></td></tr>
+                    <tr><td>2</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>CORS Wildcard con Credenciales</td><td>CWE-942 (S5122)</td><td>server.js: L41-L45</td><td><span class="sev-critical">Critical</span></td></tr>
+                    <tr><td>3</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Inyección SQL (SQLi)</td><td>CWE-89 (S3649, S2077)</td><td>server.js: L56</td><td><span class="sev-blocker">Blocker</span></td></tr>
+                    <tr><td>4</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Inyección de Comandos (Command Injection / RCE)</td><td>CWE-78 (S2076)</td><td>server.js: L73</td><td><span class="sev-blocker">Blocker</span></td></tr>
+                    <tr><td>5</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Cross-Site Scripting Reflejado (XSS)</td><td>CWE-79 (S5131)</td><td>server.js: L93</td><td><span class="sev-major">Major</span></td></tr>
+                    <tr><td>6</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Salto de Directorio (Path Traversal)</td><td>CWE-22 (S2083)</td><td>server.js: L106</td><td><span class="sev-critical">Critical</span></td></tr>
+                    <tr><td>7</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Uso de Criptografía Rota (MD5 y SHA1)</td><td>CWE-327 (S2070, S4790)</td><td>server.js: L124-L127</td><td><span class="sev-critical">Critical</span></td></tr>
+                    <tr><td>8</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Redirección Abierta (Open Redirect)</td><td>CWE-601 (S5146)</td><td>server.js: L145</td><td><span class="sev-major">Major</span></td></tr>
+                    <tr><td>9</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Server-Side Request Forgery (SSRF)</td><td>CWE-918 (S5144)</td><td>server.js: L159</td><td><span class="sev-critical">Critical</span></td></tr>
+                    <tr><td>10</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Token JWT con Algoritmo 'none' y Secreto Débil</td><td>CWE-330 (S6730)</td><td>server.js: L175-L179</td><td><span class="sev-critical">Critical</span></td></tr>
+                    <tr><td>11</td><td><span class="badge-vuln">Vulnerabilidad</span></td><td>Contaminación de Prototipos (Prototype Pollution)</td><td>CWE-1321 (S5883)</td><td>server.js: L195-L200</td><td><span class="sev-major">Major</span></td></tr>
+                    <tr><td>12</td><td><span class="badge-bug">Bug</span></td><td>Asignación accidental dentro de if (= en vez de ===)</td><td>SonarJS:S1994</td><td>server.js: L214</td><td><span class="sev-critical">Critical</span></td></tr>
+                    <tr><td>13</td><td><span class="badge-bug">Bug</span></td><td>Código Inalcanzable (Dead Code después de return)</td><td>SonarJS:S1763</td><td>server.js: L224</td><td><span class="sev-major">Major</span></td></tr>
+                    <tr><td>14</td><td><span class="badge-bug">Bug</span></td><td>Ramas idénticas en if-else</td><td>SonarJS:S1862</td><td>server.js: L234</td><td><span class="sev-major">Major</span></td></tr>
+                    <tr><td>15</td><td><span class="badge-bug">Bug</span></td><td>Auto-asignación inútil (text = text)</td><td>SonarJS:S1656</td><td>server.js: L244</td><td><span class="sev-minor">Minor</span></td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Laboratorio Desarrollado para Auditoría de Código Estático (SAST) - SonarQube & SonarCloud</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
